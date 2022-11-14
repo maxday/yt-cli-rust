@@ -1,5 +1,5 @@
-use std::fs::{File, read_dir, remove_file};
-use std::io::{Result, ErrorKind, Error};
+use std::fs::{read_dir, remove_file, File};
+use std::io::{Error, ErrorKind, Result};
 use std::path::Path;
 
 use structopt::StructOpt;
@@ -17,46 +17,49 @@ fn main() -> Result<()> {
 #[derive(StructOpt)]
 struct TodoCli {
     #[structopt(subcommand)]
-    cmd: TodoCommand
+    cmd: TodoCommand,
 }
 #[derive(StructOpt)]
 enum TodoCommand {
-    #[structopt(about="add an item", name="add")]
+    #[structopt(about = "add an item", name = "add")]
     Add(AddOptions),
-    #[structopt(about="list all items", name="list")]
+    #[structopt(about = "list all items", name = "list")]
     List(ListOptions),
-    #[structopt(about="remove an item", name="remove")]
-    Remove(RemoveOptions)
+    #[structopt(about = "remove an item", name = "remove")]
+    Remove(RemoveOptions),
 }
 #[derive(StructOpt)]
 struct AddOptions {
     #[structopt(long)]
-    item: String
+    item: String,
 }
 
 #[derive(StructOpt)]
 struct RemoveOptions {
     #[structopt(long)]
-    item: String
+    item: String,
 }
 
 #[derive(StructOpt)]
 struct ListOptions {
     #[structopt(long)]
-    sorted: bool
+    sorted: bool,
 }
 
-fn add(folder: &str, args: &AddOptions) -> Result<()>{
+fn add(folder: &str, args: &AddOptions) -> Result<()> {
     let path = build_path_from_item(folder, &args.item);
     if Path::new(&path).exists() {
-        Err(Error::new(ErrorKind::AlreadyExists, "an item with the same name already exists"))
+        Err(Error::new(
+            ErrorKind::AlreadyExists,
+            "an item with the same name already exists",
+        ))
     } else {
         File::create(path)?;
         Ok(())
     }
 }
 
-fn remove(folder: &str, args: &RemoveOptions) -> Result<()>{
+fn remove(folder: &str, args: &RemoveOptions) -> Result<()> {
     let path = build_path_from_item(folder, &args.item);
     if !Path::new(&path).exists() {
         Err(Error::new(ErrorKind::NotFound, "could not find the item"))
